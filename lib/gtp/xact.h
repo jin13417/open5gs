@@ -95,7 +95,7 @@ typedef struct ogs_gtp_xact_s {
     int             delete_action;
 
 #define OGS_GTP_RELEASE_SEND_UE_CONTEXT_RELEASE_COMMAND 1
-#define OGS_GTP_RELEASE_SEND_S1_RESET_ACK 2
+#define OGS_GTP_RELEASE_S1_CONTEXT_REMOVE 2
     int             release_action;
 } ogs_gtp_xact_t;
 

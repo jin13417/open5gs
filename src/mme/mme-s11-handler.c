@@ -707,7 +707,7 @@ void mme_s11_handle_release_access_bearers_response(
         } else {
             ogs_warn("ENB-S1 Context has already been removed");
         }
-    } else if (action == OGS_GTP_RELEASE_SEND_S1_RESET_ACK) {
+    } else if (action == OGS_GTP_RELEASE_S1_CONTEXT_REMOVE) {
         enb_ue = enb_ue_cycle(mme_ue->enb_ue);
         if (enb_ue) {
             enb_ue_remove(enb_ue);

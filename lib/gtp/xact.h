@@ -107,6 +107,7 @@ ogs_gtp_xact_t *ogs_gtp_xact_local_create(ogs_gtp_node_t *gnode,
         void (*cb)(ogs_gtp_xact_t *xact, void *data), void *data);
 ogs_gtp_xact_t *ogs_gtp_xact_remote_create(
         ogs_gtp_node_t *gnode, uint32_t sqn);
+ogs_gtp_xact_t *ogs_gtp_xact_cycle(ogs_gtp_xact_t *xact);
 void ogs_gtp_xact_delete_all(ogs_gtp_node_t *gnode);
 
 int ogs_gtp_xact_update_tx(ogs_gtp_xact_t *xact,

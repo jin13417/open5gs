@@ -61,7 +61,8 @@ void mme_send_release_access_bearer_or_ue_context_release(enb_ue_t *enb_ue)
     mme_ue = enb_ue->mme_ue;
     if (mme_ue) {
         ogs_debug("[%s] Release access bearer request", mme_ue->imsi_bcd);
-        mme_gtp_send_release_access_bearers_request(mme_ue);
+        mme_gtp_send_release_access_bearers_request(
+                mme_ue, OGS_GTP_RELEASE_SEND_UE_CONTEXT_RELEASE_COMMAND);
     } else {
         ogs_debug("[%s] No UE Context", mme_ue->imsi_bcd);
         s1ap_send_ue_context_release_command(enb_ue,

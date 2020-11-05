@@ -181,7 +181,7 @@ static void common_register_state(ogs_fsm_t *s, mme_event_t *e)
 
             if (SESSION_CONTEXT_IS_AVAILABLE(mme_ue)) {
                 mme_gtp_send_delete_all_sessions(mme_ue,
-                        OGS_GTP_DELETE_SEND_AUTHENTICATION_REUQEST);
+                        OGS_GTP_DELETE_SEND_AUTHENTICATION_REQUEST);
             } else {
                 mme_s6a_send_air(mme_ue, NULL);
             }
@@ -224,7 +224,7 @@ static void common_register_state(ogs_fsm_t *s, mme_event_t *e)
             } else {
                 if (SESSION_CONTEXT_IS_AVAILABLE(mme_ue)) {
                     mme_gtp_send_delete_all_sessions(mme_ue,
-                        OGS_GTP_DELETE_SEND_AUTHENTICATION_REUQEST);
+                        OGS_GTP_DELETE_SEND_AUTHENTICATION_REQUEST);
                 } else {
                     mme_s6a_send_air(mme_ue, NULL);
                 }
@@ -892,7 +892,7 @@ void emm_state_initial_context_setup(ogs_fsm_t *s, mme_event_t *e)
             }
 
             mme_gtp_send_delete_all_sessions(mme_ue,
-                OGS_GTP_DELETE_SEND_AUTHENTICATION_REUQEST);
+                OGS_GTP_DELETE_SEND_AUTHENTICATION_REQUEST);
             OGS_FSM_TRAN(s, &emm_state_authentication);
             break;
         case OGS_NAS_EPS_EMM_STATUS:
@@ -1008,7 +1008,7 @@ void emm_state_exception(ogs_fsm_t *s, mme_event_t *e)
             } else {
                 if (SESSION_CONTEXT_IS_AVAILABLE(mme_ue)) {
                     mme_gtp_send_delete_all_sessions(mme_ue,
-                        OGS_GTP_DELETE_SEND_AUTHENTICATION_REUQEST);
+                        OGS_GTP_DELETE_SEND_AUTHENTICATION_REQUEST);
                 } else {
                     mme_s6a_send_air(mme_ue, NULL);
                 }

@@ -2119,8 +2119,7 @@ void s1ap_handle_s1_reset(
                     item->eNB_UE_S1AP_ID ? (int)*item->eNB_UE_S1AP_ID : -1);
 
             if (item->mME_UE_S1AP_ID)
-                enb_ue = enb_ue_find_by_mme_ue_s1ap_id(
-                        *item->mME_UE_S1AP_ID);
+                enb_ue = enb_ue_find_by_mme_ue_s1ap_id( *item->mME_UE_S1AP_ID);
             else if (item->eNB_UE_S1AP_ID)
                 enb_ue = enb_ue_find_by_enb_ue_s1ap_id(enb,
                         *item->eNB_UE_S1AP_ID);

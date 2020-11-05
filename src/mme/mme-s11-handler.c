@@ -297,7 +297,7 @@ void mme_s11_handle_delete_session_response(
     ogs_debug("    MME_S11_TEID[%d] SGW_S11_TEID[%d]",
             mme_ue->mme_s11_teid, mme_ue->sgw_s11_teid);
 
-    if (action == OGS_GTP_DELETE_SEND_AUTHENTICATION_REUQEST) {
+    if (action == OGS_GTP_DELETE_SEND_AUTHENTICATION_REQUEST) {
         if (mme_sess_count(mme_ue) == 1) /* Last Session */ {
             mme_s6a_send_air(mme_ue, NULL);
         }
@@ -659,10 +659,13 @@ void mme_s11_handle_release_access_bearers_response(
 {
     int rv;
     uint8_t cause_value = 0;
+    int action = 0;
     enb_ue_t *enb_ue = NULL;
 
     ogs_assert(xact);
     ogs_assert(rsp);
+    action = xact->release_action;
+    ogs_assert(action);
 
     ogs_debug("[MME] Release Access Bearers Response");
 
@@ -695,13 +698,25 @@ void mme_s11_handle_release_access_bearers_response(
     rv = CLEAR_BEARER_CONTEXT(mme_ue);
     ogs_expect(rv == OGS_OK);
 
-    enb_ue = enb_ue_cycle(mme_ue->enb_ue);
-    if (enb_ue) {
-        s1ap_send_ue_context_release_command(enb_ue,
-                S1AP_Cause_PR_nas, S1AP_CauseNas_normal_release,
-                S1AP_UE_CTX_REL_S1_REMOVE_AND_UNLINK, 0);
+    if (action == OGS_GTP_RELEASE_SEND_UE_CONTEXT_RELEASE_COMMAND) {
+        enb_ue = enb_ue_cycle(mme_ue->enb_ue);
+        if (enb_ue) {
+            s1ap_send_ue_context_release_command(enb_ue,
+                    S1AP_Cause_PR_nas, S1AP_CauseNas_normal_release,
+                    S1AP_UE_CTX_REL_S1_REMOVE_AND_UNLINK, 0);
+        } else {
+            ogs_warn("ENB-S1 Context has already been removed");
+        }
+    } else if (action == OGS_GTP_RELEASE_SEND_S1_RESET_ACK) {
+        enb_ue = enb_ue_cycle(mme_ue->enb_ue);
+        if (enb_ue) {
+            enb_ue_remove(enb_ue);
+        } else {
+            ogs_warn("ENB-S1 Context has already been removed");
+        }
     } else {
-        ogs_warn("ENB-S1 Context has already been removed");
+        ogs_fatal("Invalid action = %d", action);
+        ogs_assert_if_reached();
     }
 }
 

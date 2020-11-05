@@ -37,7 +37,7 @@ void mme_gtp_send_delete_all_sessions(mme_ue_t *mme_ue, int action);
 void mme_gtp_send_create_bearer_response(mme_bearer_t *bearer);
 void mme_gtp_send_update_bearer_response(mme_bearer_t *bearer);
 void mme_gtp_send_delete_bearer_response(mme_bearer_t *bearer);
-void mme_gtp_send_release_access_bearers_request(mme_ue_t *mme_ue);
+void mme_gtp_send_release_access_bearers_request(mme_ue_t *mme_ue, int action);
 
 void mme_gtp_send_create_indirect_data_forwarding_tunnel_request(
         mme_ue_t *mme_ue);

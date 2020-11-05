@@ -87,12 +87,16 @@ typedef struct ogs_gtp_xact_s {
 #define OGS_GTP_MODIFY_QOS_UPDATE ((uint64_t)1<<1)
     uint64_t        update_flags;
 
-#define OGS_GTP_DELETE_SEND_AUTHENTICATION_REUQEST 1
+#define OGS_GTP_DELETE_SEND_AUTHENTICATION_REQUEST 1
 #define OGS_GTP_DELETE_SEND_DETACH_ACCEPT 2
 #define OGS_GTP_DELETE_SEND_DEACTIVATE_BEARER_CONTEXT_REQUEST 3
 #define OGS_GTP_DELETE_SEND_UE_CONTEXT_RELEASE_COMMAND 4
 #define OGS_GTP_DELETE_HANDLE_PDN_CONNECTIVITY_REQUEST 5
     int             delete_action;
+
+#define OGS_GTP_RELEASE_SEND_UE_CONTEXT_RELEASE_COMMAND 1
+#define OGS_GTP_RELEASE_SEND_S1_RESET_ACK 2
+    int             release_action;
 } ogs_gtp_xact_t;
 
 int ogs_gtp_xact_init(void);

@@ -885,8 +885,6 @@ int amf_gnb_remove(amf_gnb_t *gnb)
     ogs_hash_set(self.gnb_addr_hash, gnb->addr, sizeof(ogs_sockaddr_t), NULL);
     ogs_hash_set(self.gnb_id_hash, &gnb->gnb_id, sizeof(gnb->gnb_id), NULL);
 
-    ran_ue_remove_in_gnb(gnb);
-
     if (gnb->sock_type == SOCK_STREAM) {
         ogs_pollset_remove(gnb->poll);
         ogs_sctp_destroy(gnb->sock);

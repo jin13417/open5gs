@@ -678,14 +678,11 @@ int mme_enb_sock_type(ogs_sock_t *sock);
 
 enb_ue_t *enb_ue_add(mme_enb_t *enb, uint32_t enb_ue_s1ap_id);
 void enb_ue_remove(enb_ue_t *enb_ue);
-void enb_ue_remove_in_enb(mme_enb_t *enb);
 void enb_ue_switch_to_enb(enb_ue_t *enb_ue, mme_enb_t *new_enb);
 enb_ue_t *enb_ue_find_by_enb_ue_s1ap_id(
         mme_enb_t *enb, uint32_t enb_ue_s1ap_id);
 enb_ue_t *enb_ue_find(uint32_t index);
 enb_ue_t *enb_ue_find_by_mme_ue_s1ap_id(uint32_t mme_ue_s1ap_id);
-enb_ue_t *enb_ue_first_in_enb(mme_enb_t *enb);
-enb_ue_t *enb_ue_next_in_enb(enb_ue_t *enb_ue);
 enb_ue_t *enb_ue_cycle(enb_ue_t *enb_ue);
 
 mme_ue_t *mme_ue_add(enb_ue_t *enb_ue);

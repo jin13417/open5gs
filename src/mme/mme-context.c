@@ -2048,20 +2048,6 @@ void enb_ue_remove(enb_ue_t *enb_ue)
     stats_remove_enb_ue();
 }
 
-void enb_ue_remove_in_enb(mme_enb_t *enb)
-{
-    enb_ue_t *enb_ue = NULL, *next_enb_ue = NULL;
-    
-    enb_ue = enb_ue_first_in_enb(enb);
-    while (enb_ue) {
-        next_enb_ue = enb_ue_next_in_enb(enb_ue);
-
-        enb_ue_remove(enb_ue);
-
-        enb_ue = next_enb_ue;
-    }
-}
-
 void enb_ue_switch_to_enb(enb_ue_t *enb_ue, mme_enb_t *new_enb)
 {
     ogs_assert(enb_ue);
@@ -2083,12 +2069,9 @@ enb_ue_t *enb_ue_find_by_enb_ue_s1ap_id(
 {
     enb_ue_t *enb_ue = NULL;
     
-    enb_ue = enb_ue_first_in_enb(enb);
-    while (enb_ue) {
+    ogs_list_for_each(&enb->enb_ue_list, enb_ue) {
         if (enb_ue_s1ap_id == enb_ue->enb_ue_s1ap_id)
             break;
-
-        enb_ue = enb_ue_next_in_enb(enb_ue);
     }
 
     return enb_ue;
@@ -2103,16 +2086,6 @@ enb_ue_t *enb_ue_find(uint32_t index)
 enb_ue_t *enb_ue_find_by_mme_ue_s1ap_id(uint32_t mme_ue_s1ap_id)
 {
     return enb_ue_find(mme_ue_s1ap_id);
-}
-
-enb_ue_t *enb_ue_first_in_enb(mme_enb_t *enb)
-{
-    return ogs_list_first(&enb->enb_ue_list);
-}
-
-enb_ue_t *enb_ue_next_in_enb(enb_ue_t *enb_ue)
-{
-    return ogs_list_next(enb_ue);
 }
 
 enb_ue_t *enb_ue_cycle(enb_ue_t *enb_ue)

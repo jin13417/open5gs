@@ -406,13 +406,14 @@ struct mme_ue_s {
     } while(0)
     OGS_POOL(ebi_pool, uint8_t);
 
+    /* Paging Info */
+    ogs_gtp_xact_t  *xact;      /* GTP transaction initiating S1 Paging */
+    enb_ue_t        *enb_ue;    /* S1 UE context */
 #define ECM_CONNECTED(__mME) \
     ((__mME) && ((__mME)->enb_ue != NULL) && enb_ue_cycle((__mME)->enb_ue))
 #define ECM_IDLE(__mME) \
     ((__mME) && \
      (((__mME)->enb_ue == NULL) || (enb_ue_cycle((__mME)->enb_ue) == NULL)))
-    /* S1 UE context */
-    enb_ue_t        *enb_ue;
 
     /* Save PDN Connectivity Request */
     ogs_nas_esm_message_container_t pdn_connectivity_request;

@@ -2094,7 +2094,8 @@ void s1ap_handle_s1_reset(
     case S1AP_ResetType_PR_s1_Interface:
         ogs_warn("    S1AP_ResetType_PR_s1_Interface");
 
-        enb_ue_remove_in_enb(enb);
+        mme_gtp_send_release_all_ue_in_enb(
+                enb, OGS_GTP_RELEASE_SEND_S1_RESET_ACK);
         break;
     case S1AP_ResetType_PR_partOfS1_Interface:
         ogs_warn("    S1AP_ResetType_PR_partOfS1_Interface");
@@ -2106,6 +2107,7 @@ void s1ap_handle_s1_reset(
             S1AP_UE_associatedLogicalS1_ConnectionItem_t *item = NULL;
 
             enb_ue_t *enb_ue = NULL;
+            mme_ue_t *mme_ue = NULL;
 
             ie2 = (S1AP_UE_associatedLogicalS1_ConnectionItemRes_t *)
                 partOfS1_Interface->list.array[i];
@@ -2132,7 +2134,11 @@ void s1ap_handle_s1_reset(
                 continue;
             }
 
-            enb_ue_remove(enb_ue);
+            mme_ue = enb_ue->mme_ue;
+            ogs_assert(mme_ue);
+
+            mme_gtp_send_release_access_bearers_request(
+                    mme_ue, OGS_GTP_RELEASE_SEND_S1_RESET_ACK);
         }
         break;
     default:
@@ -2140,6 +2146,26 @@ void s1ap_handle_s1_reset(
         break;
     }
 
+    /*
+     * In the specification, eNB can send RESET ACK without waiting
+     * for resource release, but MME must send after releasing all resources.
+     *
+     * Why? Huh.. At this point, I implemented MME to send RESET ACK
+     * without waiting for resource release. If problems are found,
+     * I will fix them later.
+     *
+     * TS36.413
+     * 8.7.1.2.1 Reset Procedure Initiated from the MME
+     *
+     * The eNB does not need to wait for the release of radio resources
+     * to be completed before returning the RESET ACKNOWLEDGE message.
+     *
+     * 8.7.1.2.2 Reset Procedure Initiated from the E-UTRAN
+     * After the MME has released all assigned S1 resources and
+     * the UE S1AP IDs for all indicated UE associations which can be used
+     * for new UE-associated logical S1-connections over the S1 interface,
+     * the MME shall respond with the RESET ACKNOWLEDGE message.
+     */
     s1ap_send_s1_reset_ack(enb, partOfS1_Interface);
 }
 

@@ -398,6 +398,19 @@ void mme_gtp_send_release_access_bearers_request(mme_ue_t *mme_ue, int action)
     ogs_expect(rv == OGS_OK);
 }
 
+void mme_gtp_send_release_all_ue_in_enb(mme_enb_t *enb, int action)
+{
+    mme_ue_t *mme_ue = NULL;
+    enb_ue_t *enb_ue = NULL;
+
+    ogs_list_for_each(&enb->enb_ue_list, enb_ue) {
+        mme_ue = enb_ue->mme_ue;
+        ogs_assert(mme_ue);
+
+        mme_gtp_send_release_access_bearers_request(mme_ue, action);
+    }
+}
+
 void mme_gtp_send_create_indirect_data_forwarding_tunnel_request(
         mme_ue_t *mme_ue)
 {

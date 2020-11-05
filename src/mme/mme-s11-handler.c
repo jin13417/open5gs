@@ -456,7 +456,13 @@ void mme_s11_handle_create_bearer_request(
     /* Save Bearer TFT */
     OGS_TLV_STORE_DATA(&bearer->tft, &req->bearer_contexts.tft);
 
-    /* Save Transaction. will be handled after EMM-attached */
+    /*
+     * Save Transaction. It will be handled after EMM-attached
+     *
+     * You should not remove OLD bearer->xact.
+     * If GTP-xact Holding timer is expired,
+     * OLD bearer->xact memory will be automatically removed.
+     */
     bearer->xact = xact;
 
     /* Before Activate DEDICATED bearer, we'll check DEFAULT bearer status */
@@ -526,7 +532,13 @@ void mme_s11_handle_update_bearer_request(
         ogs_debug("    PTI[%d]", sess->pti);
     }
 
-    /* Save Transaction. will be handled after EMM-attached */
+    /*
+     * Save Transaction. It will be handled after EMM-attached
+     *
+     * You should not remove OLD bearer->xact.
+     * If GTP-xact Holding timer is expired,
+     * OLD bearer->xact memory will be automatically removed.
+     */
     bearer->xact = xact;
 
     if (/* Check if Activate Default/Dedicated Bearer Accept is received */
@@ -632,8 +644,14 @@ void mme_s11_handle_delete_bearer_request(
         ogs_debug("    PTI[%d]", sess->pti);
     }
 
-    /* Save Transaction. will be handled after EMM-attached */
     ogs_assert(bearer);
+    /*
+     * Save Transaction. It will be handled after EMM-attached
+     *
+     * You should not remove OLD bearer->xact.
+     * If GTP-xact Holding timer is expired,
+     * OLD bearer->xact memory will be automatically removed.
+     */
     bearer->xact = xact;
 
     if (/* Check if Activate Default/Dedicated Bearer Accept is received */

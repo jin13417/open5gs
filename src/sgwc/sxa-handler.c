@@ -73,8 +73,15 @@ static void sess_timeout(ogs_gtp_xact_t *xact, void *data)
 
     type = xact->seq[0].type;
 
-    ogs_error("GTP Timeout : IMSI[%s] Message-Type[%d]",
-            sgwc_ue->imsi_bcd, type);
+    switch (type) {
+    case OGS_GTP_CREATE_SESSION_REQUEST_TYPE:
+        ogs_error("[%s] No Create Session Response", sgwc_ue->imsi_bcd);
+        sgwc_pfcp_send_session_deletion_request(sess, NULL, NULL);
+        break;
+    default:
+        ogs_error("GTP Timeout : IMSI[%s] Message-Type[%d]",
+                sgwc_ue->imsi_bcd, type);
+    }
 }
 
 static void bearer_timeout(ogs_gtp_xact_t *xact, void *data)
@@ -971,9 +978,6 @@ void sgwc_sxa_handle_session_deletion_response(
     ogs_assert(pfcp_xact);
     ogs_assert(pfcp_rsp);
 
-    s11_xact = pfcp_xact->assoc_xact;
-    ogs_assert(s11_xact);
-
     ogs_pfcp_xact_commit(pfcp_xact);
 
     cause_value = OGS_GTP_CAUSE_REQUEST_ACCEPTED;
@@ -993,11 +997,15 @@ void sgwc_sxa_handle_session_deletion_response(
         cause_value = OGS_GTP_CAUSE_MANDATORY_IE_MISSING;
     }
 
+    s11_xact = pfcp_xact->assoc_xact;
+
     if (cause_value != OGS_GTP_CAUSE_REQUEST_ACCEPTED) {
         if (sess) sgwc_ue = sess->sgwc_ue;
-        ogs_gtp_send_error_message(
-                s11_xact, sgwc_ue ? sgwc_ue->mme_s11_teid : 0,
-                OGS_GTP_DELETE_SESSION_RESPONSE_TYPE, cause_value);
+        if (s11_xact) {
+            ogs_gtp_send_error_message(
+                    s11_xact, sgwc_ue ? sgwc_ue->mme_s11_teid : 0,
+                    OGS_GTP_DELETE_SESSION_RESPONSE_TYPE, cause_value);
+        }
         return;
     }
 
@@ -1005,17 +1013,19 @@ void sgwc_sxa_handle_session_deletion_response(
     sgwc_ue = sess->sgwc_ue;
     ogs_assert(sgwc_ue);
 
-    gtp_message->h.type = OGS_GTP_DELETE_SESSION_RESPONSE_TYPE;
-    gtp_message->h.teid = sgwc_ue->mme_s11_teid;
+    if (s11_xact) {
+        gtp_message->h.type = OGS_GTP_DELETE_SESSION_RESPONSE_TYPE;
+        gtp_message->h.teid = sgwc_ue->mme_s11_teid;
 
-    pkbuf = ogs_gtp_build_msg(gtp_message);
-    ogs_expect_or_return(pkbuf);
+        pkbuf = ogs_gtp_build_msg(gtp_message);
+        ogs_expect_or_return(pkbuf);
 
-    rv = ogs_gtp_xact_update_tx(s11_xact, &gtp_message->h, pkbuf);
-    ogs_expect_or_return(rv == OGS_OK);
+        rv = ogs_gtp_xact_update_tx(s11_xact, &gtp_message->h, pkbuf);
+        ogs_expect_or_return(rv == OGS_OK);
 
-    rv = ogs_gtp_xact_commit(s11_xact);
-    ogs_expect(rv == OGS_OK);
+        rv = ogs_gtp_xact_commit(s11_xact);
+        ogs_expect(rv == OGS_OK);
+    }
 
     sgwc_sess_remove(sess);
 }

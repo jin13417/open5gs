@@ -742,10 +742,7 @@ void mme_s11_handle_downlink_data_notification(
         ogs_gtp_xact_t *xact, mme_ue_t *mme_ue,
         ogs_gtp_downlink_data_notification_t *noti)
 {
-    int rv;
     uint8_t cause_value = 0;
-    ogs_gtp_header_t h;
-    ogs_pkbuf_t *s11buf = NULL;
 
     ogs_assert(xact);
     ogs_assert(noti);
@@ -765,18 +762,8 @@ void mme_s11_handle_downlink_data_notification(
             mme_ue->mme_s11_teid, mme_ue->sgw_s11_teid);
 
     /* Build Downlink data notification ack */
-    memset(&h, 0, sizeof(ogs_gtp_header_t));
-    h.type = OGS_GTP_DOWNLINK_DATA_NOTIFICATION_ACKNOWLEDGE_TYPE;
-    h.teid = mme_ue->sgw_s11_teid;
-
-    s11buf = mme_s11_build_downlink_data_notification_ack(h.type);
-    ogs_expect_or_return(s11buf);
-
-    rv = ogs_gtp_xact_update_tx(xact, &h, s11buf);
-    ogs_expect_or_return(rv == OGS_OK);
-
-    rv = ogs_gtp_xact_commit(xact);
-    ogs_expect(rv == OGS_OK);
+    mme_ue->xact = xact;
+    mme_gtp_send_downlink_data_notification_ack(mme_ue);
 
     if (noti->cause.presence) {
         ogs_gtp_cause_t *cause = noti->cause.data;

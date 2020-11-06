@@ -411,6 +411,34 @@ void mme_gtp_send_release_all_ue_in_enb(mme_enb_t *enb, int action)
     }
 }
 
+void mme_gtp_send_downlink_data_notification_ack(mme_ue_t *mme_ue)
+{
+    int rv;
+    ogs_gtp_xact_t *xact = NULL;
+
+    ogs_gtp_header_t h;
+    ogs_pkbuf_t *s11buf = NULL;
+
+    ogs_assert(mme_ue);
+    xact = ogs_gtp_xact_cycle(mme_ue->xact);
+    ogs_assert(xact);
+
+    /* Build Downlink data notification ack */
+    memset(&h, 0, sizeof(ogs_gtp_header_t));
+    h.type = OGS_GTP_DOWNLINK_DATA_NOTIFICATION_ACKNOWLEDGE_TYPE;
+    h.teid = mme_ue->sgw_s11_teid;
+
+    s11buf = mme_s11_build_downlink_data_notification_ack(h.type);
+    ogs_expect_or_return(s11buf);
+
+    rv = ogs_gtp_xact_update_tx(xact, &h, s11buf);
+    ogs_expect_or_return(rv == OGS_OK);
+
+    rv = ogs_gtp_xact_commit(xact);
+    ogs_expect(rv == OGS_OK);
+
+}
+
 void mme_gtp_send_create_indirect_data_forwarding_tunnel_request(
         mme_ue_t *mme_ue)
 {

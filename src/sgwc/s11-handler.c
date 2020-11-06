@@ -22,13 +22,33 @@
 
 #include "s11-handler.h"
 
-static void timeout(ogs_gtp_xact_t *xact, void *data)
+static void sess_timeout(ogs_gtp_xact_t *xact, void *data)
 {
     sgwc_sess_t *sess = data;
     sgwc_ue_t *sgwc_ue = NULL;
     uint8_t type = 0;
 
     ogs_assert(xact);
+    ogs_assert(sess);
+    sgwc_ue = sess->sgwc_ue;
+    ogs_assert(sgwc_ue);
+
+    type = xact->seq[0].type;
+
+    ogs_error("GTP Timeout : IMSI[%s] Message-Type[%d]",
+            sgwc_ue->imsi_bcd, type);
+}
+
+static void bearer_timeout(ogs_gtp_xact_t *xact, void *data)
+{
+    sgwc_bearer_t *bearer = data;
+    sgwc_sess_t *sess = NULL;
+    sgwc_ue_t *sgwc_ue = NULL;
+    uint8_t type = 0;
+
+    ogs_assert(xact);
+    ogs_assert(bearer);
+    sess = bearer->sess;
     ogs_assert(sess);
     sgwc_ue = sess->sgwc_ue;
     ogs_assert(sgwc_ue);
@@ -428,7 +448,7 @@ void sgwc_s11_handle_delete_session_request(
     ogs_expect_or_return(gtpbuf);
 
     s5c_xact = ogs_gtp_xact_local_create(
-            sess->gnode, &message->h, gtpbuf, timeout, sess);
+            sess->gnode, &message->h, gtpbuf, sess_timeout, sess);
     ogs_expect_or_return(s5c_xact);
 
     ogs_gtp_xact_associate(s11_xact, s5c_xact);
@@ -1053,6 +1073,7 @@ void sgwc_s11_handle_bearer_resource_command(
     ogs_gtp_xact_t *s5c_xact = NULL;
 
     sgwc_sess_t *sess = NULL;
+    sgwc_bearer_t *bearer = NULL;
 
     ogs_assert(s11_xact);
     ogs_assert(message);
@@ -1071,8 +1092,9 @@ void sgwc_s11_handle_bearer_resource_command(
         ogs_error("No Linked EPS Bearer ID");
         cause_value = OGS_GTP_CAUSE_MANDATORY_IE_MISSING;
     } else {
-        sess = sgwc_sess_find_by_ebi(sgwc_ue, cmd->linked_eps_bearer_id.u8);
-        if (!sess) {
+        bearer = sgwc_bearer_find_by_ue_ebi(
+                sgwc_ue, cmd->linked_eps_bearer_id.u8);
+        if (!bearer) {
             ogs_error("No Context for Linked EPS Bearer ID[%d]",
                     cmd->linked_eps_bearer_id.u8);
             cause_value = OGS_GTP_CAUSE_CONTEXT_NOT_FOUND;
@@ -1095,6 +1117,8 @@ void sgwc_s11_handle_bearer_resource_command(
         return;
     }
 
+    ogs_assert(bearer);
+    sess = bearer->sess;
     ogs_assert(sess);
     ogs_assert(sess->gnode);
     ogs_debug("    MME_S11_TEID[%d] SGW_S11_TEID[%d]",
@@ -1109,7 +1133,7 @@ void sgwc_s11_handle_bearer_resource_command(
     ogs_expect_or_return(pkbuf);
 
     s5c_xact = ogs_gtp_xact_local_create(
-            sess->gnode, &message->h, pkbuf, timeout, sess);
+            sess->gnode, &message->h, pkbuf, bearer_timeout, bearer);
     ogs_expect_or_return(s5c_xact);
 
     ogs_gtp_xact_associate(s11_xact, s5c_xact);

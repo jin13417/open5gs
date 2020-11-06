@@ -60,13 +60,33 @@ static uint8_t gtp_cause_from_pfcp(uint8_t pfcp_cause)
     return OGS_GTP_CAUSE_SYSTEM_FAILURE;
 }
 
-static void timeout(ogs_gtp_xact_t *xact, void *data)
+static void sess_timeout(ogs_gtp_xact_t *xact, void *data)
 {
     sgwc_sess_t *sess = data;
     sgwc_ue_t *sgwc_ue = NULL;
     uint8_t type = 0;
 
     ogs_assert(xact);
+    ogs_assert(sess);
+    sgwc_ue = sess->sgwc_ue;
+    ogs_assert(sgwc_ue);
+
+    type = xact->seq[0].type;
+
+    ogs_error("GTP Timeout : IMSI[%s] Message-Type[%d]",
+            sgwc_ue->imsi_bcd, type);
+}
+
+static void bearer_timeout(ogs_gtp_xact_t *xact, void *data)
+{
+    sgwc_bearer_t *bearer = data;
+    sgwc_sess_t *sess = NULL;
+    sgwc_ue_t *sgwc_ue = NULL;
+    uint8_t type = 0;
+
+    ogs_assert(xact);
+    ogs_assert(bearer);
+    sess = bearer->sess;
     ogs_assert(sess);
     sgwc_ue = sess->sgwc_ue;
     ogs_assert(sgwc_ue);
@@ -269,7 +289,7 @@ void sgwc_sxa_handle_session_establishment_response(
 
     ogs_assert(sess->gnode);
     s5c_xact = ogs_gtp_xact_local_create(
-            sess->gnode, &gtp_message->h, pkbuf, timeout, sess);
+            sess->gnode, &gtp_message->h, pkbuf, sess_timeout, sess);
     ogs_expect_or_return(s5c_xact);
 
     ogs_gtp_xact_associate(s11_xact, s5c_xact);
@@ -467,8 +487,9 @@ void sgwc_sxa_handle_session_modification_response(
             ogs_expect_or_return(pkbuf);
 
             ogs_assert(sgwc_ue->gnode);
-            s11_xact = ogs_gtp_xact_local_create(
-                    sgwc_ue->gnode, &recv_message->h, pkbuf, timeout, sess);
+            ogs_assert(bearer);
+            s11_xact = ogs_gtp_xact_local_create(sgwc_ue->gnode,
+                    &recv_message->h, pkbuf, bearer_timeout, bearer);
             ogs_expect_or_return(s11_xact);
 
             ogs_gtp_xact_associate(s5c_xact, s11_xact);

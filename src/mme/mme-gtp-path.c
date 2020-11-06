@@ -79,18 +79,45 @@ static void timeout(ogs_gtp_xact_t *xact, void *data)
     mme_ue_t *mme_ue = NULL;
     enb_ue_t *enb_ue = NULL;
     mme_sess_t *sess = NULL;
+    mme_bearer_t *bearer = NULL;
     uint8_t type = 0;
 
     ogs_assert(xact);
     type = xact->seq[0].type;
 
     switch (type) {
+    case OGS_GTP_RELEASE_ACCESS_BEARERS_REQUEST_TYPE:
+    case OGS_GTP_CREATE_INDIRECT_DATA_FORWARDING_TUNNEL_REQUEST_TYPE:
+    case OGS_GTP_DELETE_INDIRECT_DATA_FORWARDING_TUNNEL_REQUEST_TYPE:
+        mme_ue = data;
+        ogs_assert(mme_ue);
+        break;
+    case OGS_GTP_CREATE_SESSION_REQUEST_TYPE:
     case OGS_GTP_DELETE_SESSION_REQUEST_TYPE:
         sess = data;
         ogs_assert(sess);
         mme_ue = sess->mme_ue;
         ogs_assert(mme_ue);
+        break;
+    case OGS_GTP_MODIFY_BEARER_REQUEST_TYPE:
+    case OGS_GTP_BEARER_RESOURCE_COMMAND_TYPE:
+        bearer = data;
+        ogs_assert(bearer);
+        sess = bearer->sess;
+        ogs_assert(sess);
+        mme_ue = sess->mme_ue;
+        ogs_assert(mme_ue);
+        break;
+    default:
+        ogs_fatal("Invalid type [%d]", type);
+        ogs_assert_if_reached();
+        break;
+    }
 
+    ogs_assert(mme_ue);
+
+    switch (type) {
+    case OGS_GTP_DELETE_SESSION_REQUEST_TYPE:
         enb_ue = enb_ue_cycle(mme_ue->enb_ue);
         if (enb_ue) {
             s1ap_send_ue_context_release_command(enb_ue,
@@ -100,9 +127,10 @@ static void timeout(ogs_gtp_xact_t *xact, void *data)
             ogs_warn("No S1 Context");
         }
         break;
+    case OGS_GTP_BEARER_RESOURCE_COMMAND_TYPE:
+        /* Nothing to do */
+        break;
     default:
-        mme_ue = data;
-        ogs_assert(mme_ue);
         mme_send_delete_session_or_mme_ue_context_release(mme_ue);
         break;
     }
@@ -182,7 +210,7 @@ void mme_gtp_send_create_session_request(mme_sess_t *sess)
     pkbuf = mme_s11_build_create_session_request(h.type, sess);
     ogs_expect_or_return(pkbuf);
 
-    xact = ogs_gtp_xact_local_create(mme_ue->gnode, &h, pkbuf, timeout, mme_ue);
+    xact = ogs_gtp_xact_local_create(mme_ue->gnode, &h, pkbuf, timeout, sess);
     ogs_expect_or_return(xact);
 
     rv = ogs_gtp_xact_commit(xact);
@@ -211,7 +239,7 @@ void mme_gtp_send_modify_bearer_request(
     pkbuf = mme_s11_build_modify_bearer_request(h.type, bearer, uli_presence);
     ogs_expect_or_return(pkbuf);
 
-    xact = ogs_gtp_xact_local_create(mme_ue->gnode, &h, pkbuf, timeout, mme_ue);
+    xact = ogs_gtp_xact_local_create(mme_ue->gnode, &h, pkbuf, timeout, bearer);
     ogs_expect_or_return(xact);
 
     rv = ogs_gtp_xact_commit(xact);

@@ -780,8 +780,7 @@ ogs_pkbuf_t *mme_s11_build_bearer_resource_command(
         tad = &modification->traffic_flow_aggregate;
         break;
     default:
-        ogs_error("Invalid NAS ESM Type[%d]",
-                nas_message->esm.h.message_type);
+        ogs_error("Invalid NAS ESM Type[%d]", nas_message->esm.h.message_type);
         return NULL;
     }
 

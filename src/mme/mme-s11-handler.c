@@ -37,7 +37,7 @@ void mme_s11_handle_echo_request(
     ogs_assert(xact);
     ogs_assert(req);
 
-    ogs_debug("[MME] Receiving Echo Request");
+    ogs_debug("Receiving Echo Request");
     /* FIXME : Before implementing recovery counter correctly,
      *         I'll re-use the recovery value in request message */
     ogs_gtp_send_echo_response(xact, req->recovery.u8, 0);
@@ -68,7 +68,7 @@ void mme_s11_handle_create_session_response(
     ogs_assert(xact);
     ogs_assert(rsp);
 
-    ogs_debug("[MME] Create Session Response");
+    ogs_debug("Create Session Response");
 
     if (!mme_ue) {
         ogs_warn("No Context in TEID");
@@ -215,7 +215,7 @@ void mme_s11_handle_modify_bearer_response(
     ogs_assert(xact);
     ogs_assert(rsp);
 
-    ogs_debug("[MME] Modify Bearer Response");
+    ogs_debug("Modify Bearer Response");
 
     if (!mme_ue) {
         ogs_warn("No Context in TEID");
@@ -275,7 +275,7 @@ void mme_s11_handle_delete_session_response(
     action = xact->delete_action;
     ogs_assert(action);
 
-    ogs_debug("[MME] Delete Session Response");
+    ogs_debug("Delete Session Response");
 
     sess = xact->data;
     ogs_assert(sess);
@@ -373,7 +373,7 @@ void mme_s11_handle_create_bearer_request(
     ogs_assert(xact);
     ogs_assert(req);
 
-    ogs_debug("[MME] Create Bearer Response");
+    ogs_debug("Create Bearer Response");
 
     cause_value = OGS_GTP_CAUSE_REQUEST_ACCEPTED;
 
@@ -490,7 +490,7 @@ void mme_s11_handle_update_bearer_request(
     ogs_assert(xact);
     ogs_assert(req);
 
-    ogs_debug("[MME] Update Bearer Request");
+    ogs_debug("Update Bearer Request");
 
     cause_value = OGS_GTP_CAUSE_REQUEST_ACCEPTED;
 
@@ -605,7 +605,7 @@ void mme_s11_handle_delete_bearer_request(
     ogs_assert(xact);
     ogs_assert(req);
 
-    ogs_debug("[MME] Delete Bearer Request");
+    ogs_debug("Delete Bearer Request");
 
     if (mme_ue && req->linked_eps_bearer_id.presence == 1) {
         bearer = mme_bearer_find_by_ue_ebi(
@@ -685,7 +685,7 @@ void mme_s11_handle_release_access_bearers_response(
     action = xact->release_action;
     ogs_assert(action);
 
-    ogs_debug("[MME] Release Access Bearers Response");
+    ogs_debug("Release Access Bearers Response");
 
     if (!mme_ue) {
         ogs_warn("No Context in TEID");
@@ -747,7 +747,7 @@ void mme_s11_handle_downlink_data_notification(
     ogs_assert(xact);
     ogs_assert(noti);
 
-    ogs_debug("[MME] Downlink Data Notification");
+    ogs_debug("Downlink Data Notification");
 
     if (!mme_ue) {
         ogs_warn("OGS_GTP_CAUSE_CONTEXT_NOT_FOUND");
@@ -852,7 +852,7 @@ void mme_s11_handle_create_indirect_data_forwarding_tunnel_response(
     ogs_assert(xact);
     ogs_assert(rsp);
 
-    ogs_debug("[MME] Create Indirect Data Forwarding Tunnel Response");
+    ogs_debug("Create Indirect Data Forwarding Tunnel Response");
 
     if (!mme_ue) {
         ogs_warn("No Context in TEID");
@@ -924,7 +924,7 @@ void mme_s11_handle_delete_indirect_data_forwarding_tunnel_response(
     ogs_assert(xact);
     ogs_assert(rsp);
 
-    ogs_debug("[MME] Delete Indirect Data Forwarding Tunnel Response");
+    ogs_debug("Delete Indirect Data Forwarding Tunnel Response");
 
     if (!mme_ue) {
         ogs_warn("No Context in TEID");
@@ -969,7 +969,7 @@ void mme_s11_handle_bearer_resource_failure_indication(
     bearer = xact->data;
     ogs_assert(ind);
 
-    ogs_debug("[MME] Bearer Resource Failure Indication");
+    ogs_debug("Bearer Resource Failure Indication");
 
     rv = ogs_gtp_xact_commit(xact);
     ogs_expect_or_return(rv == OGS_OK);

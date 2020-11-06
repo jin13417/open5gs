@@ -709,11 +709,6 @@ void mme_s11_handle_release_access_bearers_response(
     ogs_debug("    MME_S11_TEID[%d] SGW_S11_TEID[%d]",
             mme_ue->mme_s11_teid, mme_ue->sgw_s11_teid);
 
-    if (cause_value != OGS_GTP_CAUSE_REQUEST_ACCEPTED) {
-        mme_send_delete_session_or_mme_ue_context_release(mme_ue);
-        return;
-    }
-
     rv = CLEAR_BEARER_CONTEXT(mme_ue);
     ogs_expect(rv == OGS_OK);
 

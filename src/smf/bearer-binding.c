@@ -41,6 +41,8 @@ static void bearer_timeout(ogs_gtp_xact_t *xact, void *data)
     switch (type) {
     case OGS_GTP_CREATE_BEARER_REQUEST_TYPE:
         ogs_error("[%s] No Create Bearer Response", smf_ue->imsi_bcd);
+        smf_epc_pfcp_send_bearer_modification_request(
+                bearer, OGS_PFCP_MODIFY_REMOVE);
         break;
     case OGS_GTP_UPDATE_BEARER_REQUEST_TYPE:
         ogs_error("[%s] No Update Bearer Response", smf_ue->imsi_bcd);

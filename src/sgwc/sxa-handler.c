@@ -93,8 +93,16 @@ static void bearer_timeout(ogs_gtp_xact_t *xact, void *data)
 
     type = xact->seq[0].type;
 
-    ogs_error("GTP Timeout : IMSI[%s] Message-Type[%d]",
-            sgwc_ue->imsi_bcd, type);
+    switch (type) {
+    case OGS_GTP_CREATE_BEARER_REQUEST_TYPE:
+        ogs_error("[%s] No Create Bearer Response", sgwc_ue->imsi_bcd);
+        sgwc_pfcp_send_bearer_modification_request(
+                bearer, NULL, NULL, OGS_PFCP_MODIFY_REMOVE);
+        break;
+    default:
+        ogs_error("GTP Timeout : IMSI[%s] Message-Type[%d]",
+                sgwc_ue->imsi_bcd, type);
+    }
 }
 
 void sgwc_sxa_handle_session_establishment_response(
@@ -422,11 +430,14 @@ void sgwc_sxa_handle_session_modification_response(
 
         } else if (flags & OGS_PFCP_MODIFY_REMOVE) {
             s5c_xact = pfcp_xact->assoc_xact;
-            ogs_assert(s5c_xact);
 
-            ogs_gtp_send_error_message(
-                    s5c_xact, sess ? sess->pgw_s5c_teid : 0,
-                    OGS_GTP_DELETE_BEARER_RESPONSE_TYPE, cause_value);
+            if (s5c_xact) {
+                ogs_gtp_send_error_message(
+                        s5c_xact, sess ? sess->pgw_s5c_teid : 0,
+                        OGS_GTP_DELETE_BEARER_RESPONSE_TYPE, cause_value);
+            }
+
+            sgwc_bearer_remove(bearer);
 
         } else if (flags & OGS_PFCP_MODIFY_ACTIVATE) {
             if (flags & OGS_PFCP_MODIFY_UL_ONLY) {

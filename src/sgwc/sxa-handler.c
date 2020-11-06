@@ -328,9 +328,38 @@ void sgwc_sxa_handle_session_modification_response(
 
     cause_value = OGS_GTP_CAUSE_REQUEST_ACCEPTED;
 
-    if (!sess) {
-        ogs_warn("No Context");
-        cause_value = OGS_GTP_CAUSE_CONTEXT_NOT_FOUND;
+    if (flags & OGS_PFCP_MODIFY_SESSION) {
+        if (!sess) {
+            ogs_warn("No Context");
+
+            sess = pfcp_xact->data;
+            ogs_assert(sess);
+
+            cause_value = OGS_GTP_CAUSE_CONTEXT_NOT_FOUND;
+        }
+        sgwc_ue = sess->sgwc_ue;
+        ogs_assert(sgwc_ue);
+
+    } else {
+        bearer = pfcp_xact->data;
+        ogs_assert(bearer);
+
+        if (!sess) {
+            ogs_warn("No Context");
+
+            sess = bearer->sess;
+            ogs_assert(sess);
+
+            cause_value = OGS_GTP_CAUSE_CONTEXT_NOT_FOUND;
+        }
+
+        sgwc_ue = bearer->sgwc_ue;
+        ogs_assert(sgwc_ue);
+
+        dl_tunnel = sgwc_dl_tunnel_in_bearer(bearer);
+        ogs_assert(dl_tunnel);
+        ul_tunnel = sgwc_ul_tunnel_in_bearer(bearer);
+        ogs_assert(ul_tunnel);
     }
 
     if (pfcp_rsp->cause.presence) {
@@ -347,7 +376,6 @@ void sgwc_sxa_handle_session_modification_response(
         uint8_t pfcp_cause_value = OGS_PFCP_CAUSE_REQUEST_ACCEPTED;
         uint8_t offending_ie_value = 0;
 
-        ogs_assert(sess);
         for (i = 0; i < OGS_MAX_NUM_OF_PDR; i++) {
             sgwc_tunnel_t *tunnel = NULL;
             ogs_pfcp_pdr_t *pdr = NULL;
@@ -384,7 +412,6 @@ void sgwc_sxa_handle_session_modification_response(
     }
 
     if (cause_value != OGS_GTP_CAUSE_REQUEST_ACCEPTED) {
-        if (sess) sgwc_ue = sess->sgwc_ue;
         if (flags & OGS_PFCP_MODIFY_CREATE) {
             s5c_xact = pfcp_xact->assoc_xact;
             ogs_assert(s5c_xact);
@@ -432,24 +459,6 @@ void sgwc_sxa_handle_session_modification_response(
 
         ogs_pfcp_xact_commit(pfcp_xact);
         return;
-    }
-
-    if (flags & OGS_PFCP_MODIFY_SESSION) {
-        sess = pfcp_xact->data;
-        ogs_assert(sess);
-        sgwc_ue = sess->sgwc_ue;
-        ogs_assert(sgwc_ue);
-
-    } else {
-        bearer = pfcp_xact->data;
-        ogs_assert(bearer);
-        sgwc_ue = bearer->sgwc_ue;
-        ogs_assert(sgwc_ue);
-
-        dl_tunnel = sgwc_dl_tunnel_in_bearer(bearer);
-        ogs_assert(dl_tunnel);
-        ul_tunnel = sgwc_ul_tunnel_in_bearer(bearer);
-        ogs_assert(ul_tunnel);
     }
 
     if (flags & OGS_PFCP_MODIFY_CREATE) {

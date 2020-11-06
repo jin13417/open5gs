@@ -284,6 +284,8 @@ void smf_s5c_handle_create_bearer_response(
 
     ogs_debug("Create Bearer Response");
 
+    cause_value = OGS_GTP_CAUSE_REQUEST_ACCEPTED;
+
     rv = ogs_gtp_xact_commit(xact);
     ogs_expect(rv == OGS_OK);
 
@@ -392,6 +394,8 @@ void smf_s5c_handle_update_bearer_response(
     ogs_assert(gtp_flags);
 
     ogs_debug("Update Bearer Response");
+
+    cause_value = OGS_GTP_CAUSE_REQUEST_ACCEPTED;
 
     rv = ogs_gtp_xact_commit(xact);
     ogs_expect(rv == OGS_OK);
@@ -511,6 +515,8 @@ void smf_s5c_handle_delete_bearer_response(
     ogs_assert(rsp);
 
     ogs_debug("Delete Bearer Response");
+
+    cause_value = OGS_GTP_CAUSE_REQUEST_ACCEPTED;
 
     rv = ogs_gtp_xact_commit(xact);
     ogs_expect(rv == OGS_OK);

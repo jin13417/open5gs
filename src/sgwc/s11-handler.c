@@ -481,6 +481,8 @@ void sgwc_s11_handle_create_bearer_response(
 
     ogs_debug("Create Bearer Response");
 
+    cause_value = OGS_GTP_CAUSE_REQUEST_ACCEPTED;
+
     rv = ogs_gtp_xact_commit(s11_xact);
     ogs_expect(rv == OGS_OK);
 
@@ -629,6 +631,8 @@ void sgwc_s11_handle_update_bearer_response(
 
     ogs_debug("Update Bearer Response");
 
+    cause_value = OGS_GTP_CAUSE_REQUEST_ACCEPTED;
+
     rv = ogs_gtp_xact_commit(s11_xact);
     ogs_expect(rv == OGS_OK);
 
@@ -727,6 +731,8 @@ void sgwc_s11_handle_delete_bearer_response(
     ogs_assert(rsp);
 
     ogs_debug("Delete Bearer Response");
+
+    cause_value = OGS_GTP_CAUSE_REQUEST_ACCEPTED;
 
     rv = ogs_gtp_xact_commit(s11_xact);
     ogs_expect(rv == OGS_OK);
@@ -859,6 +865,8 @@ void sgwc_s11_handle_downlink_data_notification_ack(
     ogs_assert(sess);
     sgwc_ue = sess->sgwc_ue;
     ogs_assert(sgwc_ue);
+
+    cause_value = OGS_GTP_CAUSE_REQUEST_ACCEPTED;
 
     rv = ogs_gtp_xact_commit(s11_xact);
     ogs_expect(rv == OGS_OK);

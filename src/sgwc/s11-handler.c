@@ -487,9 +487,12 @@ void sgwc_s11_handle_create_bearer_response(
 
     if (!sgwc_ue) {
         sgwc_sess_t *sess = NULL;
+        sgwc_bearer_t *bearer = NULL;
 
         ogs_warn("No Context in TEID");
-        sess = s11_xact->data;
+        bearer = s11_xact->data;
+        ogs_assert(bearer);
+        sess = bearer->sess;
         ogs_assert(sess);
         sgwc_ue = sess->sgwc_ue;
         ogs_assert(sgwc_ue);
@@ -629,9 +632,12 @@ void sgwc_s11_handle_update_bearer_response(
     ogs_debug("Update Bearer Response");
     if (!sgwc_ue) {
         sgwc_sess_t *sess = NULL;
+        sgwc_bearer_t *bearer = NULL;
 
         ogs_warn("No Context in TEID");
-        sess = s11_xact->data;
+        bearer = s11_xact->data;
+        ogs_assert(bearer);
+        sess = bearer->sess;
         ogs_assert(sess);
         sgwc_ue = sess->sgwc_ue;
         ogs_assert(sgwc_ue);
@@ -731,9 +737,12 @@ void sgwc_s11_handle_delete_bearer_response(
 
     if (!sgwc_ue) {
         sgwc_sess_t *sess = NULL;
+        sgwc_bearer_t *bearer = NULL;
 
         ogs_warn("No Context in TEID");
-        sess = s11_xact->data;
+        bearer = s11_xact->data;
+        ogs_assert(bearer);
+        sess = bearer->sess;
         ogs_assert(sess);
         sgwc_ue = sess->sgwc_ue;
         ogs_assert(sgwc_ue);

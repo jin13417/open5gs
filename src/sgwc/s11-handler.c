@@ -755,7 +755,9 @@ void sgwc_s11_handle_delete_bearer_response(
     if (sgwc_ue && cause_value == OGS_GTP_CAUSE_REQUEST_ACCEPTED) {
         bearer = sgwc_bearer_find_by_ue_ebi(
                 sgwc_ue, req->bearer_contexts.eps_bearer_id.u8);
-        ogs_assert(bearer);
+        if (!bearer)
+            ogs_error("Unknown EPS Bearer ID[%d]",
+                        req->bearer_contexts.eps_bearer_id.u8);
     }
 
     if (!bearer) {

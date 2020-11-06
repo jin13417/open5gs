@@ -22,21 +22,35 @@
 
 #include "s5c-handler.h"
 
-static void timeout(ogs_gtp_xact_t *xact, void *data)
+static void bearer_timeout(ogs_gtp_xact_t *xact, void *data)
 {
-    sgwc_sess_t *sess = data;
+    sgwc_bearer_t *bearer = data;
+    sgwc_sess_t *sess = NULL;
     sgwc_ue_t *sgwc_ue = NULL;
     uint8_t type = 0;
 
     ogs_assert(xact);
+    ogs_assert(bearer);
+    sess = bearer->sess;
     ogs_assert(sess);
     sgwc_ue = sess->sgwc_ue;
     ogs_assert(sgwc_ue);
 
     type = xact->seq[0].type;
 
-    ogs_error("GTP Timeout : IMSI[%s] Message-Type[%d]",
-            sgwc_ue->imsi_bcd, type);
+    switch (type) {
+    case OGS_GTP_UPDATE_BEARER_REQUEST_TYPE:
+        ogs_error("[%s] No Update Bearer Response", sgwc_ue->imsi_bcd);
+        break;
+    case OGS_GTP_DELETE_BEARER_REQUEST_TYPE:
+        ogs_error("[%s] No Delete Bearer Response", sgwc_ue->imsi_bcd);
+        sgwc_pfcp_send_bearer_modification_request(
+                bearer, NULL, NULL, OGS_PFCP_MODIFY_REMOVE);
+        break;
+    default:
+        ogs_error("GTP Timeout : IMSI[%s] Message-Type[%d]",
+                sgwc_ue->imsi_bcd, type);
+    }
 }
 
 void sgwc_s5c_handle_create_session_response(
@@ -373,6 +387,7 @@ void sgwc_s5c_handle_update_bearer_request(
     ogs_gtp_update_bearer_request_t *req = NULL;
     ogs_pkbuf_t *pkbuf = NULL;
     sgwc_ue_t *sgwc_ue = NULL;
+    sgwc_bearer_t *bearer = NULL;
 
     ogs_assert(s5c_xact);
     ogs_assert(message);
@@ -397,16 +412,28 @@ void sgwc_s5c_handle_update_bearer_request(
         cause_value = OGS_GTP_CAUSE_MANDATORY_IE_MISSING;
     }
 
+    if (cause_value == OGS_GTP_CAUSE_REQUEST_ACCEPTED) {
+        bearer = sgwc_bearer_find_by_sess_ebi(
+                sess, req->bearer_contexts.eps_bearer_id.u8);
+    }
+    if (!bearer) {
+        ogs_warn("No Context");
+        cause_value = OGS_GTP_CAUSE_CONTEXT_NOT_FOUND;
+    }
+
     if (cause_value != OGS_GTP_CAUSE_REQUEST_ACCEPTED) {
         ogs_gtp_send_error_message(s5c_xact, sess ? sess->pgw_s5c_teid : 0,
                 OGS_GTP_UPDATE_BEARER_RESPONSE_TYPE, cause_value);
         return;
     }
 
+    ogs_assert(sess);
+    ogs_assert(bearer);
     sgwc_ue = sess->sgwc_ue;
     ogs_assert(sgwc_ue);
     ogs_assert(sgwc_ue->gnode);
 
+    ogs_debug("    EBI[%d]", bearer->ebi);
     ogs_debug("    MME_S11_TEID[%d] SGW_S11_TEID[%d]",
         sgwc_ue->mme_s11_teid, sgwc_ue->sgw_s11_teid);
     ogs_debug("    SGW_S5C_TEID[0x%x] PGW_S5C_TEID[0x%x]",
@@ -421,7 +448,7 @@ void sgwc_s5c_handle_update_bearer_request(
     s11_xact = s5c_xact->assoc_xact;
     if (!s11_xact) {
         s11_xact = ogs_gtp_xact_local_create(
-                sgwc_ue->gnode, &message->h, pkbuf, timeout, sess);
+                sgwc_ue->gnode, &message->h, pkbuf, bearer_timeout, bearer);
         ogs_expect_or_return(s11_xact);
 
         ogs_gtp_xact_associate(s5c_xact, s11_xact);
@@ -446,6 +473,7 @@ void sgwc_s5c_handle_delete_bearer_request(
     ogs_gtp_delete_bearer_request_t *req = NULL;
     ogs_pkbuf_t *pkbuf = NULL;
     sgwc_ue_t *sgwc_ue = NULL;
+    sgwc_bearer_t *bearer = NULL;
 
     ogs_assert(s5c_xact);
     ogs_assert(message);
@@ -467,16 +495,27 @@ void sgwc_s5c_handle_delete_bearer_request(
         cause_value = OGS_GTP_CAUSE_CONTEXT_NOT_FOUND;
     }
 
+    if (cause_value == OGS_GTP_CAUSE_REQUEST_ACCEPTED) {
+        bearer = sgwc_bearer_find_by_sess_ebi(sess, req->eps_bearer_ids.u8);
+    }
+    if (!bearer) {
+        ogs_warn("No Context");
+        cause_value = OGS_GTP_CAUSE_CONTEXT_NOT_FOUND;
+    }
+
     if (cause_value != OGS_GTP_CAUSE_REQUEST_ACCEPTED) {
         ogs_gtp_send_error_message(s5c_xact, sess ? sess->pgw_s5c_teid : 0,
                 OGS_GTP_DELETE_BEARER_RESPONSE_TYPE, cause_value);
         return;
     }
 
+    ogs_assert(sess);
+    ogs_assert(bearer);
     sgwc_ue = sess->sgwc_ue;
     ogs_assert(sgwc_ue);
     ogs_assert(sgwc_ue->gnode);
 
+    ogs_debug("    EBI[%d]", bearer->ebi);
     ogs_debug("    MME_S11_TEID[%d] SGW_S11_TEID[%d]",
         sgwc_ue->mme_s11_teid, sgwc_ue->sgw_s11_teid);
     ogs_debug("    SGW_S5C_TEID[0x%x] PGW_S5C_TEID[0x%x]",
@@ -491,7 +530,7 @@ void sgwc_s5c_handle_delete_bearer_request(
     s11_xact = s5c_xact->assoc_xact;
     if (!s11_xact) {
         s11_xact = ogs_gtp_xact_local_create(
-                sgwc_ue->gnode, &message->h, pkbuf, timeout, sess);
+                sgwc_ue->gnode, &message->h, pkbuf, bearer_timeout, bearer);
         ogs_expect_or_return(s11_xact);
 
         ogs_gtp_xact_associate(s5c_xact, s11_xact);

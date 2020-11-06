@@ -720,20 +720,21 @@ void sgwc_sxa_handle_session_modification_response(
 
         } else {
             s5c_xact = pfcp_xact->assoc_xact;
-            ogs_assert(s5c_xact);
 
-            ogs_assert(recv_message);
-            recv_message->h.type = OGS_GTP_DELETE_BEARER_RESPONSE_TYPE;
-            recv_message->h.teid = sess->pgw_s5c_teid;
+            if (s5c_xact) {
+                ogs_assert(recv_message);
+                recv_message->h.type = OGS_GTP_DELETE_BEARER_RESPONSE_TYPE;
+                recv_message->h.teid = sess->pgw_s5c_teid;
 
-            pkbuf = ogs_gtp_build_msg(recv_message);
-            ogs_expect_or_return(pkbuf);
+                pkbuf = ogs_gtp_build_msg(recv_message);
+                ogs_expect_or_return(pkbuf);
 
-            rv = ogs_gtp_xact_update_tx(s5c_xact, &recv_message->h, pkbuf);
-            ogs_expect_or_return(rv == OGS_OK);
+                rv = ogs_gtp_xact_update_tx(s5c_xact, &recv_message->h, pkbuf);
+                ogs_expect_or_return(rv == OGS_OK);
 
-            rv = ogs_gtp_xact_commit(s5c_xact);
-            ogs_expect(rv == OGS_OK);
+                rv = ogs_gtp_xact_commit(s5c_xact);
+                ogs_expect(rv == OGS_OK);
+            }
 
             sgwc_bearer_remove(bearer);
         }

@@ -245,14 +245,19 @@ void sgwc_s5c_handle_delete_session_response(
 
     ogs_debug("Delete Session Response");
 
+    cause_value = OGS_GTP_CAUSE_REQUEST_ACCEPTED;
+
+    rv = ogs_gtp_xact_commit(s5c_xact);
+    ogs_expect(rv == OGS_OK);
+
     if (!sess) {
         ogs_warn("No Context in TEID");
         sess = s5c_xact->data;
         ogs_assert(sess);
     }
 
-    rv = ogs_gtp_xact_commit(s5c_xact);
-    ogs_expect(rv == OGS_OK);
+    sgwc_ue = sess->sgwc_ue;
+    ogs_assert(sgwc_ue);
 
     if (rsp->cause.presence) {
         ogs_gtp_cause_t *cause = rsp->cause.data;
@@ -265,14 +270,12 @@ void sgwc_s5c_handle_delete_session_response(
     }
 
     if (cause_value != OGS_GTP_CAUSE_REQUEST_ACCEPTED) {
+        sgwc_pfcp_send_session_deletion_request(sess, NULL, NULL);
         ogs_gtp_send_error_message(
                 s11_xact, sgwc_ue ? sgwc_ue->mme_s11_teid : 0,
                 OGS_GTP_DELETE_SESSION_RESPONSE_TYPE, cause_value);
         return;
     }
-
-    sgwc_ue = sess->sgwc_ue;
-    ogs_assert(sgwc_ue);
 
     /* Remove a pgw session */
     ogs_debug("    MME_S11_TEID[%d] SGW_S11_TEID[%d]",

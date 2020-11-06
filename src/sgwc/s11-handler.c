@@ -35,8 +35,15 @@ static void sess_timeout(ogs_gtp_xact_t *xact, void *data)
 
     type = xact->seq[0].type;
 
-    ogs_error("GTP Timeout : IMSI[%s] Message-Type[%d]",
-            sgwc_ue->imsi_bcd, type);
+    switch (type) {
+    case OGS_GTP_DELETE_SESSION_REQUEST_TYPE:
+        ogs_error("[%s] No Delete Session Response", sgwc_ue->imsi_bcd);
+        sgwc_pfcp_send_session_deletion_request(sess, NULL, NULL);
+        break;
+    default:
+        ogs_error("GTP Timeout : IMSI[%s] Message-Type[%d]",
+                sgwc_ue->imsi_bcd, type);
+    }
 }
 
 static void bearer_timeout(ogs_gtp_xact_t *xact, void *data)

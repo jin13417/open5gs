@@ -97,7 +97,8 @@ static void bearer_timeout(ogs_gtp_xact_t *xact, void *data)
     case OGS_GTP_CREATE_BEARER_REQUEST_TYPE:
         ogs_error("[%s] No Create Bearer Response", sgwc_ue->imsi_bcd);
         sgwc_pfcp_send_bearer_modification_request(
-                bearer, NULL, NULL, OGS_PFCP_MODIFY_REMOVE);
+                bearer, NULL, NULL,
+                OGS_PFCP_MODIFY_UL_ONLY|OGS_PFCP_MODIFY_REMOVE);
         break;
     default:
         ogs_error("GTP Timeout : IMSI[%s] Message-Type[%d]",

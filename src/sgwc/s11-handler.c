@@ -551,7 +551,8 @@ void sgwc_s11_handle_create_bearer_response(
 
     if (cause_value != OGS_GTP_CAUSE_REQUEST_ACCEPTED) {
         sgwc_pfcp_send_bearer_modification_request(
-                bearer, NULL, NULL, OGS_PFCP_MODIFY_REMOVE);
+                bearer, NULL, NULL,
+                OGS_PFCP_MODIFY_UL_ONLY|OGS_PFCP_MODIFY_REMOVE);
         ogs_gtp_send_error_message(s5c_xact, sess ? sess->pgw_s5c_teid : 0,
                 OGS_GTP_CREATE_BEARER_RESPONSE_TYPE, cause_value);
         return;

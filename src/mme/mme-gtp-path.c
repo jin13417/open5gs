@@ -311,7 +311,8 @@ void mme_gtp_send_delete_all_sessions(mme_ue_t *mme_ue, int action)
     }
 }
 
-void mme_gtp_send_create_bearer_response(mme_bearer_t *bearer)
+void mme_gtp_send_create_bearer_response(
+        mme_bearer_t *bearer, uint8_t cause_value)
 {
     int rv;
 
@@ -331,7 +332,7 @@ void mme_gtp_send_create_bearer_response(mme_bearer_t *bearer)
     h.type = OGS_GTP_CREATE_BEARER_RESPONSE_TYPE;
     h.teid = mme_ue->sgw_s11_teid;
 
-    pkbuf = mme_s11_build_create_bearer_response(h.type, bearer);
+    pkbuf = mme_s11_build_create_bearer_response(h.type, bearer, cause_value);
     ogs_expect_or_return(pkbuf);
 
     rv = ogs_gtp_xact_update_tx(xact, &h, pkbuf);
@@ -341,7 +342,8 @@ void mme_gtp_send_create_bearer_response(mme_bearer_t *bearer)
     ogs_expect(rv == OGS_OK);
 }
 
-void mme_gtp_send_update_bearer_response(mme_bearer_t *bearer)
+void mme_gtp_send_update_bearer_response(
+        mme_bearer_t *bearer, uint8_t cause_value)
 {
     int rv;
 
@@ -361,7 +363,7 @@ void mme_gtp_send_update_bearer_response(mme_bearer_t *bearer)
     h.type = OGS_GTP_UPDATE_BEARER_RESPONSE_TYPE;
     h.teid = mme_ue->sgw_s11_teid;
 
-    pkbuf = mme_s11_build_update_bearer_response(h.type, bearer);
+    pkbuf = mme_s11_build_update_bearer_response(h.type, bearer, cause_value);
     ogs_expect_or_return(pkbuf);
 
     rv = ogs_gtp_xact_update_tx(xact, &h, pkbuf);
@@ -371,7 +373,8 @@ void mme_gtp_send_update_bearer_response(mme_bearer_t *bearer)
     ogs_expect(rv == OGS_OK);
 }
 
-void mme_gtp_send_delete_bearer_response(mme_bearer_t *bearer)
+void mme_gtp_send_delete_bearer_response(
+        mme_bearer_t *bearer, uint8_t cause_value)
 {
     int rv;
 
@@ -391,7 +394,7 @@ void mme_gtp_send_delete_bearer_response(mme_bearer_t *bearer)
     h.type = OGS_GTP_DELETE_BEARER_RESPONSE_TYPE;
     h.teid = mme_ue->sgw_s11_teid;
 
-    pkbuf = mme_s11_build_delete_bearer_response(h.type, bearer);
+    pkbuf = mme_s11_build_delete_bearer_response(h.type, bearer, cause_value);
     ogs_expect_or_return(pkbuf);
 
     rv = ogs_gtp_xact_update_tx(xact, &h, pkbuf);

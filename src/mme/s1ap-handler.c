@@ -949,7 +949,8 @@ void s1ap_handle_e_rab_setup_response(
                 if (bearer->ebi == linked_bearer->ebi) {
                     mme_gtp_send_modify_bearer_request(bearer, 0);
                 } else {
-                    mme_gtp_send_create_bearer_response(bearer);
+                    mme_gtp_send_create_bearer_response(
+                        bearer, OGS_GTP_CAUSE_REQUEST_ACCEPTED);
                 }
             }
         }

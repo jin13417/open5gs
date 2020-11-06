@@ -583,7 +583,8 @@ void mme_s11_handle_update_bearer_request(
                         bearer, ESM_CAUSE_SERVICE_OPTION_NOT_SUPPORTED);
             }
 
-            mme_gtp_send_update_bearer_response(bearer);
+            mme_gtp_send_update_bearer_response(
+                    bearer, OGS_GTP_CAUSE_REQUEST_ACCEPTED);
         }
     } else {
         if (!OGS_FSM_CHECK(&bearer->sm, esm_state_active)) {

@@ -761,8 +761,15 @@ void mme_s11_handle_downlink_data_notification(
     ogs_debug("    MME_S11_TEID[%d] SGW_S11_TEID[%d]",
             mme_ue->mme_s11_teid, mme_ue->sgw_s11_teid);
 
-    /* Build Downlink data notification ack */
+    /*
+     * Save Transaction. It will be handled after Service-Request is received.
+     *
+     * You should not remove OLD mme->xact.
+     * If GTP-xact Holding timer is expired,
+     * OLD mme->xact memory will be automatically removed.
+     */
     mme_ue->xact = xact;
+
     mme_gtp_send_downlink_data_notification_ack(
             mme_ue, OGS_GTP_CAUSE_REQUEST_ACCEPTED);
 

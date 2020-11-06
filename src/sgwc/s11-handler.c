@@ -833,6 +833,7 @@ void sgwc_s11_handle_downlink_data_notification_ack(
     int rv;
     uint8_t cause_value;
 
+    sgwc_bearer_t *bearer = NULL;
     sgwc_sess_t *sess = NULL;
 
     ogs_gtp_downlink_data_notification_acknowledge_t *ack = NULL;
@@ -842,7 +843,9 @@ void sgwc_s11_handle_downlink_data_notification_ack(
     ack = &message->downlink_data_notification_acknowledge;
     ogs_assert(ack);
 
-    sess = s11_xact->data;
+    bearer = s11_xact->data;
+    ogs_assert(bearer);
+    sess = bearer->sess;
     ogs_assert(sess);
     sgwc_ue = sess->sgwc_ue;
     ogs_assert(sgwc_ue);

@@ -51,7 +51,7 @@ ogs_pkbuf_t *mme_s11_build_create_session_request(
     mme_ue = sess->mme_ue;
     ogs_assert(mme_ue);
 
-    ogs_debug("[MME] Create Session Request");
+    ogs_debug("Create Session Request");
     ogs_debug("    MME_S11_TEID[%d] SGW_S11_TEID[%d]",
             mme_ue->mme_s11_teid, mme_ue->sgw_s11_teid);
     memset(&gtp_message, 0, sizeof(ogs_gtp_message_t));
@@ -286,7 +286,7 @@ ogs_pkbuf_t *mme_s11_build_modify_bearer_request(
     mme_ue = bearer->mme_ue;
     ogs_assert(mme_ue);
 
-    ogs_debug("[MME] Modifty Bearer Request");
+    ogs_debug("Modifty Bearer Request");
     ogs_debug("    MME_S11_TEID[%d] SGW_S11_TEID[%d]",
             mme_ue->mme_s11_teid, mme_ue->sgw_s11_teid);
     ogs_debug("    ENB_S1U_TEID[%d] SGW_S1U_TEID[%d]",
@@ -347,7 +347,7 @@ ogs_pkbuf_t *mme_s11_build_delete_session_request(
     bearer = mme_default_bearer_in_sess(sess);
     ogs_assert(bearer);
 
-    ogs_debug("[MME] Delete Session Request");
+    ogs_debug("Delete Session Request");
     ogs_debug("    MME_S11_TEID[%d] SGW_S11_TEID[%d]",
             mme_ue->mme_s11_teid, mme_ue->sgw_s11_teid);
 
@@ -400,7 +400,7 @@ ogs_pkbuf_t *mme_s11_build_create_bearer_response(
     mme_ue = bearer->mme_ue;
     ogs_assert(mme_ue);
 
-    ogs_debug("[MME] Create Bearer Response");
+    ogs_debug("Create Bearer Response");
     ogs_debug("    MME_S11_TEID[%d] SGW_S11_TEID[%d]",
             mme_ue->mme_s11_teid, mme_ue->sgw_s11_teid);
 
@@ -495,7 +495,7 @@ ogs_pkbuf_t *mme_s11_build_update_bearer_response(
     mme_ue = bearer->mme_ue;
     ogs_assert(mme_ue);
 
-    ogs_debug("[MME] Update Bearer Response");
+    ogs_debug("Update Bearer Response");
     ogs_debug("    MME_S11_TEID[%d] SGW_S11_TEID[%d]",
             mme_ue->mme_s11_teid, mme_ue->sgw_s11_teid);
 
@@ -570,7 +570,7 @@ ogs_pkbuf_t *mme_s11_build_delete_bearer_response(
     mme_ue = bearer->mme_ue;
     ogs_assert(mme_ue);
 
-    ogs_debug("[MME] Delete Bearer Response");
+    ogs_debug("Delete Bearer Response");
     ogs_debug("    MME_S11_TEID[%d] SGW_S11_TEID[%d]",
             mme_ue->mme_s11_teid, mme_ue->sgw_s11_teid);
 
@@ -632,7 +632,7 @@ ogs_pkbuf_t *mme_s11_build_release_access_bearers_request(uint8_t type)
     ogs_gtp_release_access_bearers_request_t *req = 
         &gtp_message.release_access_bearers_request;
 
-    ogs_debug("[MME] Release Access Bearers Request");
+    ogs_debug("Release Access Bearers Request");
     memset(&gtp_message, 0, sizeof(ogs_gtp_message_t));
 
     req->originating_node.presence = 1;
@@ -642,7 +642,8 @@ ogs_pkbuf_t *mme_s11_build_release_access_bearers_request(uint8_t type)
     return ogs_gtp_build_msg(&gtp_message);
 }
 
-ogs_pkbuf_t *mme_s11_build_downlink_data_notification_ack(uint8_t type)
+ogs_pkbuf_t *mme_s11_build_downlink_data_notification_ack(
+        uint8_t type, uint8_t cause_value)
 {
     ogs_gtp_message_t gtp_message;
     ogs_gtp_downlink_data_notification_acknowledge_t *ack = 
@@ -650,12 +651,12 @@ ogs_pkbuf_t *mme_s11_build_downlink_data_notification_ack(uint8_t type)
 
     ogs_gtp_cause_t cause;
 
-    ogs_debug("[MME] Downlink Data Notification Ackknowledge");
+    ogs_debug("Downlink Data Notification Ackknowledge");
 
     memset(&gtp_message, 0, sizeof(ogs_gtp_message_t));
 
     memset(&cause, 0, sizeof(cause));
-    cause.value = OGS_GTP_CAUSE_REQUEST_ACCEPTED;
+    cause.value = cause_value;
 
     ack->cause.presence = 1;
     ack->cause.data = &cause;
@@ -684,7 +685,7 @@ ogs_pkbuf_t *mme_s11_build_create_indirect_data_forwarding_tunnel_request(
 
     ogs_assert(mme_ue);
 
-    ogs_debug("[MME] Create Indirect Data Forwarding Tunnel Request");
+    ogs_debug("Create Indirect Data Forwarding Tunnel Request");
     ogs_debug("    MME_S11_TEID[%d] SGW_S11_TEID[%d]",
             mme_ue->mme_s11_teid, mme_ue->sgw_s11_teid);
 
@@ -787,7 +788,7 @@ ogs_pkbuf_t *mme_s11_build_bearer_resource_command(
     linked_bearer = mme_linked_bearer(bearer);
     ogs_assert(linked_bearer);
 
-    ogs_debug("[MME] Bearer Resource Command");
+    ogs_debug("Bearer Resource Command");
     ogs_debug("    MME_S11_TEID[%d] SGW_S11_TEID[%d]",
             mme_ue->mme_s11_teid, mme_ue->sgw_s11_teid);
 

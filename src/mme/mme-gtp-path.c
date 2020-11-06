@@ -411,7 +411,8 @@ void mme_gtp_send_release_all_ue_in_enb(mme_enb_t *enb, int action)
     }
 }
 
-void mme_gtp_send_downlink_data_notification_ack(mme_ue_t *mme_ue)
+void mme_gtp_send_downlink_data_notification_ack(
+        mme_ue_t *mme_ue, uint8_t cause_value)
 {
     int rv;
     ogs_gtp_xact_t *xact = NULL;
@@ -428,7 +429,7 @@ void mme_gtp_send_downlink_data_notification_ack(mme_ue_t *mme_ue)
     h.type = OGS_GTP_DOWNLINK_DATA_NOTIFICATION_ACKNOWLEDGE_TYPE;
     h.teid = mme_ue->sgw_s11_teid;
 
-    s11buf = mme_s11_build_downlink_data_notification_ack(h.type);
+    s11buf = mme_s11_build_downlink_data_notification_ack(h.type, cause_value);
     ogs_expect_or_return(s11buf);
 
     rv = ogs_gtp_xact_update_tx(xact, &h, s11buf);

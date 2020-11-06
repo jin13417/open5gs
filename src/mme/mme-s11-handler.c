@@ -763,7 +763,8 @@ void mme_s11_handle_downlink_data_notification(
 
     /* Build Downlink data notification ack */
     mme_ue->xact = xact;
-    mme_gtp_send_downlink_data_notification_ack(mme_ue);
+    mme_gtp_send_downlink_data_notification_ack(
+            mme_ue, OGS_GTP_CAUSE_REQUEST_ACCEPTED);
 
     if (noti->cause.presence) {
         ogs_gtp_cause_t *cause = noti->cause.data;

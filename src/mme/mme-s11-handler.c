@@ -578,7 +578,7 @@ void mme_s11_handle_update_bearer_request(
                     "Both QoS and TFT is NULL");
 
             if (xact->xid & OGS_GTP_CMD_XACT_ID) {
-                /* MME recieved Bearer resource modification request */
+                /* MME received Bearer Resource Modification Request */
                 nas_eps_send_bearer_resource_modification_reject(
                         bearer, ESM_CAUSE_SERVICE_OPTION_NOT_SUPPORTED);
             }

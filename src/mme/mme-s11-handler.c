@@ -770,9 +770,6 @@ void mme_s11_handle_downlink_data_notification(
      */
     mme_ue->xact = xact;
 
-    mme_gtp_send_downlink_data_notification_ack(
-            mme_ue, OGS_GTP_CAUSE_REQUEST_ACCEPTED);
-
     if (noti->cause.presence) {
         ogs_gtp_cause_t *cause = noti->cause.data;
         ogs_assert(cause);
@@ -833,6 +830,9 @@ void mme_s11_handle_downlink_data_notification(
             s1ap_send_ue_context_release_command(enb_ue,
                     S1AP_Cause_PR_nas, S1AP_CauseNas_normal_release,
                     S1AP_UE_CTX_REL_S1_PAGING, 0);
+        } else {
+            mme_gtp_send_downlink_data_notification_ack(
+                    mme_ue, OGS_GTP_CAUSE_UE_ALREADY_RE_ATTACHED);
         }
     }
 }

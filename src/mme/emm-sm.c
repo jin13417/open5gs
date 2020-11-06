@@ -156,8 +156,31 @@ static void common_register_state(ogs_fsm_t *s, mme_event_t *e)
             if (CS_CALL_SERVICE_INDICATOR(mme_ue) ||
                 SMS_SERVICE_INDICATOR(mme_ue)) {
 
-            } else if (ogs_gtp_xact_cycle(mme_ue->xact)) {
+                /* Nothing */
 
+            } else if (ogs_gtp_xact_cycle(mme_ue->xact)) {
+                ogs_gtp_xact_t *xact = mme_ue->xact;
+                uint8_t type;
+                ogs_assert(xact);
+                type = xact->seq[0].type;
+
+                switch (type) {
+                case OGS_GTP_DOWNLINK_DATA_NOTIFICATION_TYPE:
+                    mme_gtp_send_downlink_data_notification_ack(
+                            mme_ue, OGS_GTP_CAUSE_REQUEST_ACCEPTED);
+                    break;
+                case OGS_GTP_CREATE_BEARER_REQUEST_TYPE:
+                    break;
+                case OGS_GTP_UPDATE_BEARER_REQUEST_TYPE:
+                    break;
+                case OGS_GTP_DELETE_BEARER_REQUEST_TYPE:
+                    break;
+                default:
+                    ogs_fatal("[%s] Invalid GTP Message-Type[%d]",
+                            mme_ue->imsi_bcd, type);
+                    ogs_assert_if_reached();
+                    break;
+                }
             }
 
             s1ap_send_initial_context_setup_request(mme_ue);

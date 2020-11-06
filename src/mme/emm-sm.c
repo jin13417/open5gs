@@ -153,6 +153,13 @@ static void common_register_state(ogs_fsm_t *s, mme_event_t *e)
                 break;
             }
 
+            if (CS_CALL_SERVICE_INDICATOR(mme_ue) ||
+                SMS_SERVICE_INDICATOR(mme_ue)) {
+
+            } else if (ogs_gtp_xact_cycle(mme_ue->xact)) {
+
+            }
+
             s1ap_send_initial_context_setup_request(mme_ue);
             OGS_FSM_TRAN(s, &emm_state_registered);
             break;

@@ -293,6 +293,10 @@ void sgwc_s11_handle_modify_bearer_request(
         ogs_error("No EPS Bearer ID");
         cause.value = OGS_GTP_CAUSE_MANDATORY_IE_MISSING;
     }
+    if (req->bearer_contexts_to_be_modified.s1_u_enodeb_f_teid.presence == 0) {
+        ogs_error("No eNB TEID");
+        cause.value = OGS_GTP_CAUSE_MANDATORY_IE_MISSING;
+    }
 
     if (!sgwc_ue) {
         ogs_error("No Context");
@@ -310,11 +314,6 @@ void sgwc_s11_handle_modify_bearer_request(
     if (!bearer) {
         ogs_warn("No Context");
         cause.value = OGS_GTP_CAUSE_CONTEXT_NOT_FOUND;
-    }
-
-    if (req->bearer_contexts_to_be_modified.s1_u_enodeb_f_teid.presence == 0) {
-        ogs_error("No eNB TEID");
-        cause.value = OGS_GTP_CAUSE_MANDATORY_IE_MISSING;
     }
 
     if (cause.value != OGS_GTP_CAUSE_REQUEST_ACCEPTED) {

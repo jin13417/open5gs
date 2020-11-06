@@ -310,11 +310,6 @@ void sgwc_s5c_handle_create_bearer_request(
 
     cause_value = OGS_GTP_CAUSE_REQUEST_ACCEPTED;
 
-    if (!sess) {
-        ogs_warn("No Context");
-        cause_value = OGS_GTP_CAUSE_CONTEXT_NOT_FOUND;
-    }
-
     if (req->linked_eps_bearer_id.presence == 0) {
         ogs_error("No Linked EBI");
         cause_value = OGS_GTP_CAUSE_MANDATORY_IE_MISSING;
@@ -330,6 +325,11 @@ void sgwc_s5c_handle_create_bearer_request(
     if (req->bearer_contexts.s5_s8_u_sgw_f_teid.presence == 0) {
         ogs_error("No GTP TEID");
         cause_value = OGS_GTP_CAUSE_MANDATORY_IE_MISSING;
+    }
+
+    if (!sess) {
+        ogs_warn("No Context");
+        cause_value = OGS_GTP_CAUSE_CONTEXT_NOT_FOUND;
     }
 
     if (cause_value != OGS_GTP_CAUSE_REQUEST_ACCEPTED) {
@@ -399,11 +399,6 @@ void sgwc_s5c_handle_update_bearer_request(
 
     cause_value = OGS_GTP_CAUSE_REQUEST_ACCEPTED;
 
-    if (!sess) {
-        ogs_warn("No Context");
-        cause_value = OGS_GTP_CAUSE_CONTEXT_NOT_FOUND;
-    }
-
     if (req->bearer_contexts.presence == 0) {
         ogs_error("No Bearer");
         cause_value = OGS_GTP_CAUSE_MANDATORY_IE_MISSING;
@@ -413,9 +408,17 @@ void sgwc_s5c_handle_update_bearer_request(
         cause_value = OGS_GTP_CAUSE_MANDATORY_IE_MISSING;
     }
 
+    if (!sess) {
+        ogs_warn("No Context");
+        cause_value = OGS_GTP_CAUSE_CONTEXT_NOT_FOUND;
+    }
+
     if (cause_value == OGS_GTP_CAUSE_REQUEST_ACCEPTED) {
         bearer = sgwc_bearer_find_by_sess_ebi(
                 sess, req->bearer_contexts.eps_bearer_id.u8);
+        if (!bearer)
+            ogs_error("No Context for EPS Bearer ID[%d]",
+                        req->bearer_contexts.eps_bearer_id.u8);
     }
     if (!bearer) {
         ogs_warn("No Context");
@@ -485,19 +488,22 @@ void sgwc_s5c_handle_delete_bearer_request(
 
     cause_value = OGS_GTP_CAUSE_REQUEST_ACCEPTED;
 
-    if (!sess) {
-        ogs_warn("No Context");
-        cause_value = OGS_GTP_CAUSE_CONTEXT_NOT_FOUND;
-    }
-
     if (req->linked_eps_bearer_id.presence == 0 &&
         req->eps_bearer_ids.presence == 0) {
         ogs_error("No Linked EBI or EPS Bearer ID");
         cause_value = OGS_GTP_CAUSE_CONTEXT_NOT_FOUND;
     }
 
+    if (!sess) {
+        ogs_warn("No Context");
+        cause_value = OGS_GTP_CAUSE_CONTEXT_NOT_FOUND;
+    }
+
     if (cause_value == OGS_GTP_CAUSE_REQUEST_ACCEPTED) {
         bearer = sgwc_bearer_find_by_sess_ebi(sess, req->eps_bearer_ids.u8);
+        if (!bearer)
+            ogs_error("No Context for EPS Bearer ID[%d]",
+                        req->eps_bearer_ids.u8);
     }
     if (!bearer) {
         ogs_warn("No Context");

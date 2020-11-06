@@ -72,11 +72,6 @@ void smf_s5c_handle_create_session_request(
 
     cause_value = OGS_GTP_CAUSE_REQUEST_ACCEPTED;
 
-    if (!sess) {
-        ogs_error("No Context");
-        cause_value = OGS_GTP_CAUSE_CONTEXT_NOT_FOUND;
-    }
-
     if (req->imsi.presence == 0) {
         ogs_error("No IMSI");
         cause_value = OGS_GTP_CAUSE_MANDATORY_IE_MISSING;
@@ -112,6 +107,11 @@ void smf_s5c_handle_create_session_request(
     if (req->user_location_information.presence == 0) {
         ogs_error("No UE Location Information");
         cause_value = OGS_GTP_CAUSE_MANDATORY_IE_MISSING;
+    }
+
+    if (!sess) {
+        ogs_error("No Context");
+        cause_value = OGS_GTP_CAUSE_CONTEXT_NOT_FOUND;
     }
 
     if (!ogs_diam_peer_connected()) {
@@ -692,19 +692,6 @@ void smf_s5c_handle_bearer_resource_command(
 
     cause_value = OGS_GTP_CAUSE_REQUEST_ACCEPTED;
 
-    if (cmd->linked_eps_bearer_id.presence == 0) {
-        ogs_error("No Linked EPS Bearer ID");
-        cause_value = OGS_GTP_CAUSE_MANDATORY_IE_MISSING;
-    } else {
-        bearer = smf_bearer_find_by_ebi(
-                sess, cmd->linked_eps_bearer_id.u8);
-        if (!bearer) {
-            ogs_error("No Context for Linked EPS Bearer ID[%d]",
-                    cmd->linked_eps_bearer_id.u8);
-            cause_value = OGS_GTP_CAUSE_CONTEXT_NOT_FOUND;
-        }
-    }
-
     if (cmd->procedure_transaction_id.presence == 0) {
         ogs_error("No PTI");
         cause_value = OGS_GTP_CAUSE_MANDATORY_IE_MISSING;
@@ -712,6 +699,28 @@ void smf_s5c_handle_bearer_resource_command(
     if (cmd->traffic_aggregate_description.presence == 0) {
         ogs_error("No Traffic aggregate description(TAD)");
         cause_value = OGS_GTP_CAUSE_MANDATORY_IE_MISSING;
+    }
+
+    if (cmd->linked_eps_bearer_id.presence == 0) {
+        ogs_error("No Linked EPS Bearer ID");
+        cause_value = OGS_GTP_CAUSE_MANDATORY_IE_MISSING;
+    }
+
+    if (!sess) {
+        ogs_warn("No Context");
+        cause_value = OGS_GTP_CAUSE_CONTEXT_NOT_FOUND;
+    }
+
+    if (cause_value == OGS_GTP_CAUSE_REQUEST_ACCEPTED) {
+        bearer = smf_bearer_find_by_ebi(sess, cmd->linked_eps_bearer_id.u8);
+        if (!bearer)
+            ogs_error("No Context for Linked EPS Bearer ID[%d]",
+                    cmd->linked_eps_bearer_id.u8);
+    }
+
+    if (!bearer) {
+        ogs_error("No Context");
+        cause_value = OGS_GTP_CAUSE_CONTEXT_NOT_FOUND;
     }
 
     if (cause_value != OGS_GTP_CAUSE_REQUEST_ACCEPTED) {

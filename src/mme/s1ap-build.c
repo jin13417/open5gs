@@ -358,10 +358,9 @@ ogs_pkbuf_t *s1ap_build_initial_context_setup_request(
             &UEAggregateMaximumBitrate->uEaggregateMaximumBitRateDL, 
             subscription_data->ambr.downlink);
 
-    sess = mme_sess_first(mme_ue);
-    while (sess) {
-        bearer = mme_bearer_first(sess);
-        while (bearer) {
+    ogs_list_for_each(&mme_ue->sess_list, sess) {
+        ogs_list_for_each(&sess->bearer_list, bearer) {
+
             S1AP_E_RABToBeSetupItemCtxtSUReqIEs_t *item = NULL;
             S1AP_E_RABToBeSetupItemCtxtSUReq_t *e_rab = NULL;
             S1AP_GBR_QosInformation_t *gbrQosInformation = NULL;
@@ -435,10 +434,7 @@ ogs_pkbuf_t *s1ap_build_initial_context_setup_request(
                  * set emmbuf to NULL as shown below */
                 emmbuf = NULL;
             }
-
-            bearer = mme_bearer_next(bearer);
         }
-        sess = mme_sess_next(sess);
     }
 
     ie = CALLOC(1, sizeof(S1AP_InitialContextSetupRequestIEs_t));
@@ -1600,10 +1596,9 @@ ogs_pkbuf_t *s1ap_build_handover_command(enb_ue_t *source_ue)
     ogs_debug("    ENB_UE_S1AP_ID[%d] MME_UE_S1AP_ID[%d]",
             source_ue->enb_ue_s1ap_id, source_ue->mme_ue_s1ap_id);
 
-    sess = mme_sess_first(mme_ue);
-    while (sess) {
-        bearer = mme_bearer_first(sess);
-        while (bearer) {
+    ogs_list_for_each(&mme_ue->sess_list, sess) {
+        ogs_list_for_each(&sess->bearer_list, bearer) {
+
             S1AP_E_RABDataForwardingItem_t *e_rab = NULL;
 
             if (MME_HAVE_SGW_DL_INDIRECT_TUNNEL(bearer) ||
@@ -1673,10 +1668,7 @@ ogs_pkbuf_t *s1ap_build_handover_command(enb_ue_t *source_ue)
                         bearer->sgw_ul_teid, e_rab->uL_GTP_TEID);
                 ogs_debug("    SGW-UL-TEID[%d]", bearer->sgw_dl_teid);
             }
-
-            bearer = mme_bearer_next(bearer);
         }
-        sess = mme_sess_next(sess);
     }
 
     ie = CALLOC(1, sizeof(S1AP_HandoverCommandIEs_t));
@@ -1915,10 +1907,9 @@ ogs_pkbuf_t *s1ap_build_handover_request(
             &UEAggregateMaximumBitrate->uEaggregateMaximumBitRateDL, 
             subscription_data->ambr.downlink);
 
-    sess = mme_sess_first(mme_ue);
-    while (sess) {
-        bearer = mme_bearer_first(sess);
-        while (bearer) {
+    ogs_list_for_each(&mme_ue->sess_list, sess) {
+        ogs_list_for_each(&sess->bearer_list, bearer) {
+
             S1AP_E_RABToBeSetupItemHOReqIEs_t *item = NULL;
             S1AP_E_RABToBeSetupItemHOReq_t *e_rab = NULL;
             S1AP_GBR_QosInformation_t *gbrQosInformation = NULL;
@@ -1976,10 +1967,7 @@ ogs_pkbuf_t *s1ap_build_handover_request(
             ogs_asn_uint32_to_OCTET_STRING(
                     bearer->sgw_s1u_teid, &e_rab->gTP_TEID);
             ogs_debug("    SGW-S1U-TEID[%d]", bearer->sgw_s1u_teid);
-
-            bearer = mme_bearer_next(bearer);
         }
-        sess = mme_sess_next(sess);
     }
 
     ogs_s1ap_buffer_to_OCTET_STRING(

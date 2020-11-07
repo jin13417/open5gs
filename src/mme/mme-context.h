@@ -783,6 +783,7 @@ mme_bearer_t *mme_default_bearer_in_sess(mme_sess_t *sess);
 mme_bearer_t *mme_linked_bearer(mme_bearer_t *bearer);
 mme_bearer_t *mme_bearer_first(mme_sess_t *sess);
 mme_bearer_t *mme_bearer_next(mme_bearer_t *bearer);
+mme_bearer_t *mme_bearer_cycle(mme_bearer_t *bearer);
 
 int mme_bearer_is_inactive(mme_ue_t *mme_ue);
 int mme_bearer_set_inactive(mme_ue_t *mme_ue);

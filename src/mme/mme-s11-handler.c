@@ -470,17 +470,42 @@ void mme_s11_handle_create_bearer_request(
      */
     bearer->xact = xact;
 
-    /* Before Activate DEDICATED bearer, we'll check DEFAULT bearer status */
-    default_bearer = mme_default_bearer_in_sess(sess);
-    ogs_expect_or_return(default_bearer);
+#if 0 /* Not tested */
+    if (ECM_IDLE(mme_ue)) {
+        /*
+         * Save Transaction.
+         * It will be handled after Service-Request is received.
+         *
+         * You should not remove OLD mme->xact.
+         * If GTP-xact Holding timer is expired,
+         * OLD mme->xact memory will be automatically removed.
+         */
+        mme_ue->xact = xact;
 
-    if (/* Check if Activate Default Bearer Accept is received */
-        OGS_FSM_CHECK(&default_bearer->sm, esm_state_active) &&
-        /* Check if Initial Context Setup Response or 
-         *          E-RAB Setup Response is received */
-        MME_HAVE_ENB_S1U_PATH(default_bearer)) {
-        nas_eps_send_activate_dedicated_bearer_context_request(bearer);
+        /*
+         * Save Bearer Context.
+         * It will be used when Paging timer is expired.
+         */
+        xact->data = bearer;
+
+        s1ap_send_paging(mme_ue, S1AP_CNDomain_ps);
+
+    } else {
+#endif
+        /* Before Activate DEDICATED bearer, check DEFAULT bearer status */
+        default_bearer = mme_default_bearer_in_sess(sess);
+        ogs_expect_or_return(default_bearer);
+
+        if (/* Check if Activate Default Bearer Accept is received */
+            OGS_FSM_CHECK(&default_bearer->sm, esm_state_active) &&
+            /* Check if Initial Context Setup Response or
+             *          E-RAB Setup Response is received */
+            MME_HAVE_ENB_S1U_PATH(default_bearer)) {
+            nas_eps_send_activate_dedicated_bearer_context_request(bearer);
+        }
+#if 0
     }
+#endif
 }
 
 void mme_s11_handle_update_bearer_request(

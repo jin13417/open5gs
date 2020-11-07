@@ -506,6 +506,7 @@ static void common_register_state(ogs_fsm_t *s, mme_event_t *e)
 
                 } else if (ogs_gtp_xact_cycle(mme_ue->xact)) {
                     ogs_gtp_xact_t *xact = mme_ue->xact;
+                    mme_bearer_t *bearer = NULL;
                     uint8_t type;
                     ogs_assert(xact);
                     type = xact->seq[0].type;
@@ -516,10 +517,29 @@ static void common_register_state(ogs_fsm_t *s, mme_event_t *e)
                                 mme_ue, OGS_GTP_CAUSE_UNABLE_TO_PAGE_UE);
                         break;
                     case OGS_GTP_CREATE_BEARER_REQUEST_TYPE:
+                        bearer = mme_bearer_cycle(xact->data);
+                        ogs_assert(bearer);
+
+                        mme_gtp_send_create_bearer_response(
+                                bearer, OGS_GTP_CAUSE_UNABLE_TO_PAGE_UE);
                         break;
                     case OGS_GTP_UPDATE_BEARER_REQUEST_TYPE:
+#if 0 /* Not tested */
+                        bearer = mme_bearer_cycle(xact->data);
+                        ogs_assert(bearer);
+
+                        mme_gtp_send_update_bearer_response(
+                                bearer, OGS_GTP_CAUSE_UNABLE_TO_PAGE_UE);
+#endif
                         break;
                     case OGS_GTP_DELETE_BEARER_REQUEST_TYPE:
+#if 0 /* Not tested */
+                        bearer = mme_bearer_cycle(xact->data);
+                        ogs_assert(bearer);
+
+                        mme_gtp_send_delete_bearer_response(
+                                bearer, OGS_GTP_CAUSE_UNABLE_TO_PAGE_UE);
+#endif
                         break;
                     default:
                         ogs_fatal("[%s] Invalid GTP Message-Type[%d]",

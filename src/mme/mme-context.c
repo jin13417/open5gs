@@ -3047,6 +3047,11 @@ mme_bearer_t *mme_bearer_next(mme_bearer_t *bearer)
     return ogs_list_next(bearer);
 }
 
+mme_bearer_t *mme_bearer_cycle(mme_bearer_t *bearer)
+{
+    return ogs_pool_cycle(&mme_bearer_pool, bearer);
+}
+
 int mme_bearer_set_inactive(mme_ue_t *mme_ue)
 {
     mme_sess_t *sess = NULL;
